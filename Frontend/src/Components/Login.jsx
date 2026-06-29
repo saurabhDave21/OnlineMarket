@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { addUser } from '../Store/userSlice'
 const Login = () => {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+    const [email, setEmail] = useState("Gautam@gmail.com")
+    const [password, setPassword] = useState("Gautam@123")
     const [error, setError] = useState(null)
     const dispatch = useDispatch()
     const navigate = useNavigate()
