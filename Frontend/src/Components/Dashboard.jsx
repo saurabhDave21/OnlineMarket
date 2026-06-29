@@ -3,6 +3,7 @@ import axios from "axios"
 import { addProducts, removeProducts } from '../Store/productSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select';
+import Cards from './Cards';
 const Dashboard = () => {
   const product = useSelector((store) => store.products.value)
   const [page, setPage] = useState(1)
@@ -135,48 +136,7 @@ const Dashboard = () => {
           }}
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 bg-black min-h-screen">
-        {product?.map((product) => (
-          <div
-            key={product._id}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 hover:border-blue-500 transition-all duration-300"
-          >
-            <img
-              src={product.images}
-              alt={product.name}
-              className="w-full h-52 object-cover"
-            />
-
-            <div className="p-4">
-              <h2 className="text-xl font-bold text-white">
-                {product.name}
-              </h2>
-
-              <p className="text-gray-400 text-sm mt-2 line-clamp-2">
-                {product.description}
-              </p>
-
-              <div className="flex justify-between items-center mt-4">
-                <span className="bg-zinc-800 text-green-400 px-3 py-1 rounded-full text-xs capitalize">
-                  {product.category}
-                </span>
-
-                <span className="text-2xl font-bold text-green-500">
-                  ₹{product.price}
-                </span>
-              </div>
-
-              <p className="text-gray-500 text-sm mt-3">
-                Stock: {product.quantity}
-              </p>
-
-              <button className="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition">
-                Add to Cart
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Cards product={product}/>
       <div className='flex items-center w-full justify-center'>
         <button className='px-5 py-1 bg-blue-600 rounded-lg text-white' onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>Back</button>
         <p className='text-xl'>{page}</p>

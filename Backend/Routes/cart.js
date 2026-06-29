@@ -15,14 +15,14 @@ cartRouter.post(
       const itemsExists = await productModel.findOne({
         $and: [{ _id: itemsId }, { isActive: "Active" }, { isDeleted: false }],
       });
-      
+
       if (!itemsExists) {
         return res.status(400).json({ message: "Items Not Found!" });
       }
       const isItemsCountIncrease = await cart.findOne({ userId });
       //   let TotalBill=isItemsCountIncrease.items.map((e)=>{return e.price*e.Itemsquantity}).reduce((acc,val)=>acc+val,0)
-      if(itemsExists.quantity == 0){
-          return res.status(400).json({message:"Seller don't have product"})
+      if (itemsExists.quantity == 0) {
+        return res.status(400).json({ message: "Seller don't have product" });
       }
       let data;
       if (isItemsCountIncrease) {
@@ -73,13 +73,24 @@ cartRouter.post(
       });
       data = await itemsInstance.save();
 
-      res.status(200).json({ message: "Your Products Found", data });
+      res.status(200).json({ message: "You added items successfully", data });
     } catch (err) {
       console.log(err);
     }
   },
 );
 
+cartRouter.get("/cart/get-items", isUserAuth, isUser, async (req, res) => {
+  try {
+    const cartData = await cart.findOne({ userId: req.user._id });
+    if (!cartData) {
+      return res.status(400).json({ message: "Cart is Empty" });
+    }
+    return res.status(200).json({ message: "You Cart", data: cartData });
+  } catch (err) {
+    console.log(err);
+  }
+});
 cartRouter.delete(
   "/cart/delete-items/:itemsId",
   isUserAuth,
@@ -87,13 +98,25 @@ cartRouter.delete(
   async (req, res) => {
     try {
       const { itemsId } = req.params;
-      const itemsData = await cart.findOne({userId:req.user._id})
-      const deleteItems = await itemsData.items.filter((elm)=>elm.ItemsId !== itemsId)
-      itemsData.items = deleteItems
-      const data = await itemsData.save()
+      const itemsData = await cart.findOne({ userId: req.user._id });
+      const deleteItems = await itemsData.items.filter(
+        (elm) => elm.ItemsId !== itemsId,
+      );
+      itemsData.items = deleteItems;
+      const data = await itemsData.save();
+      if (data.items.length === 0) {
+        const data = await cart.findOneAndDelete({ userId: req.user._id });
+        return res.status(200).json({
+          message: "Cart deleted successfully",
+          data:{data , itemsId}
+        });
+      }
       res
         .status(200)
-        .json({ message: "Items Deleted Successfully", data });
+        .json({
+          message: "Items Deleted Successfully",
+          data: { data, itemsId },
+        });
     } catch (err) {
       console.log(err);
     }

@@ -16,7 +16,7 @@ reviewRouter.post("/review",isUserAuth,async(req,res)=>{
             return res.status(400).json({message:"Star is Not vaild Must between 0 to 5"})
         }
         if(isExists){
-            return res.status(404).json({message:"Per User and Items Only One Review"})
+            return res.status(400).json({message:"Per User and Items Only One Review"})
         }
         const reviewInstance = new review({
             userId:req.user._id,    

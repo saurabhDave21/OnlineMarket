@@ -32,11 +32,44 @@ orderRouter.post("/order", isUserAuth, isUser, async (req, res) => {
     const cartisEmpty = await cart.findOneAndDelete({ userId });
     return res
       .status(200)
-      .json({ message: "Cart fetch Successfully ", data: orderInstance });
+      .json({ message: "Order Successfully ", data: orderInstance });
   } catch (err) {
     console.log(err);
   }
 });
+
+orderRouter.get("/order",isUserAuth,async(req,res)=>{
+  try{
+    if(req.user.type == "user"){
+      const AllOrder = await order.find({userId:req.user._id})
+      if(!AllOrder){
+        return res.status(400).json({message:"No Order Exists"})
+      }
+      return res.status(200).json({message:"Here is Your Orders",data:AllOrder})
+    }
+    else{
+      const FindOrderForSeller = await store.find({ownerId:req.user._id})
+      const findOrder = await order.find({}).populate({
+      path: "items.ItemsId",
+      select: "storeId",
+      match: {
+        storeId: FindOrderForSeller[0]._id,
+      },
+      });
+      const orderForSeller = findOrder.map((e)=>{
+        const order = e.items.filter((elm)=>elm.ItemsId)
+        return order
+      })
+      if(!findOrder){
+        return res.status(400).json({message:"No Order Found"})
+      }
+      return res.status(200).json({message:"Seller Order",data:orderForSeller})
+    }
+  }
+  catch(err){
+    console.log(err)
+  }
+})
 
 orderRouter.patch("/order", isUserAuth, isSeller, async (req, res) => {
   try {
@@ -52,16 +85,15 @@ orderRouter.patch("/order", isUserAuth, isSeller, async (req, res) => {
       .findOne({ _id: ItemsId })
       .populate("storeId", "ownerId");
     if (productData.storeId.ownerId.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: "Unauthorized Access" });
+      return res.status(400).json({ message: "Unauthorized Access" });
     }
     const isOrderUpdated = isOrder.items.find(
       (e) => e.ItemsId == ItemsId,
     );
     if (!isOrderUpdated) {
-    return res.status(404).json({ message: "Item not found" });
+    return res.status(400).json({ message: "Item not found" });
     }
     isOrderUpdated.orderStatus = status
-    console.log(isOrderUpdated)
     const data = await isOrder.save()
     return res
       .status(200)
