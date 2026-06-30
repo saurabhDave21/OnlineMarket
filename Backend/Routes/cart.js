@@ -15,7 +15,6 @@ cartRouter.post(
       const itemsExists = await productModel.findOne({
         $and: [{ _id: itemsId }, { isActive: "Active" }, { isDeleted: false }],
       });
-
       if (!itemsExists) {
         return res.status(400).json({ message: "Items Not Found!" });
       }
@@ -48,7 +47,10 @@ cartRouter.post(
             .status(200)
             .json({ message: "You added items successfully", data });
         }
+
         itemsData.Itemsquantity = itemsData.Itemsquantity + 1;
+        itemsExists.quantity = itemsExists.quantity - 1;
+        await itemsExists.save()
         itemsData.price = itemsExists.price * itemsData.Itemsquantity;
         data = await isItemsCountIncrease.save();
         return res
@@ -98,9 +100,20 @@ cartRouter.delete(
     try {
       const { itemsId } = req.params;
       const itemsData = await cart.findOne({ userId: req.user._id });
+      let increaseQuntity;
       const deleteItems = await itemsData.items.filter(
-        (elm) => elm.ItemsId !== itemsId,
+        (elm) => {
+          if(elm.ItemsId !== itemsId){
+            return elm
+          }
+          else{
+              increaseQuntity=elm.Itemsquantity
+          }
+        },
       );
+      const product = await productModel.findOne({_id:itemsId})
+      product.quantity += increaseQuntity;
+      await product.save()
       itemsData.items = deleteItems;
       const data = await itemsData.save();
       if (data.items.length === 0) {
