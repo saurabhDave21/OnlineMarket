@@ -6,19 +6,19 @@ const store = require("../models/storeSchema");
 const { isUserAuth, isUser, isSeller } = require("../Middleware/userAuth");
 
 productRouter.post(
-  "/store/add-product/:storeId",
+  "/store/add-product",
   isUserAuth,
   isSeller,
   async (req, res) => {
     try {
-      const { storeId } = req.params;
       if (req.body == undefined) {
         return res.status(400).json({ message: "Please Fill Form" });
       }
-      const storeExists = await store.findById({ _id: storeId });
+      const storeExists = await store.findOne({ ownerId: req.user._id });
       if (!storeExists) {
         return res.status(400).json({ message: "Store not exists" });
       }
+      const storeId = storeExists._id
       if (storeExists.ownerId.toString() !== req.user._id.toString()) {
         return res.status(400).json({ message: "You can't access store" });
       }
@@ -70,7 +70,7 @@ productRouter.delete(
       }
       isProductExist.isDeleted = true;
       const data = await isProductExist.save();
-      res.status(200).json({ message: "Products", data });
+      res.status(200).json({ message: "Product Deleted Successfully", data });
     } catch (err) {
       console.log(err);
     }
@@ -79,18 +79,17 @@ productRouter.delete(
 
 //for storeOwner fetchproducts
 productRouter.get(
-  "/store/:storeId/get-product",
+  "/store/seller/get-products",
   isUserAuth,
   isSeller,
   async (req, res) => {
     try {
-      const { storeId } = req.params;
       const fetchStore = await store.findOne({ ownerId: req.user._id });
       if (!fetchStore) {
         return res.status(404).json({ message: "unauthorized access" });
       }
       const products = await productsModel.find({
-        $and: [{ storeId }, { isDeleted: false }],
+        $and: [{ storeId:fetchStore._id }, { isDeleted: false }],
       });
       res.status(200).json({ message: "Your Store Product", data: products });
     } catch (err) {

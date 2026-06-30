@@ -25,13 +25,20 @@ const Login = () => {
             });
 
             const resData = await res.json();
+
             dispatch(addUser(resData.data))
             if (!res.ok) {
                 throw new Error(resData.message); // or resData.error
             }
             else {
                 localStorage.setItem("token",JSON.stringify(resData.data.token))
-                navigate("/dashboard")
+                localStorage.setItem("type",JSON.stringify(resData.data.type))
+                if(resData.data.type == "user"){
+                    navigate("/dashboard")
+                }
+                else{
+                    navigate("/seller/dashboard")
+                }
             }
         }
         catch (err) {

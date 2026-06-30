@@ -18,6 +18,10 @@ storeRouter.post("/create-store",isUserAuth,isSeller, async (req, res) => {
     ) {
       return res.status(400).json({ message: "Every Field is Require" });
     }
+    const storeExitsAlredy = await store.findOne({ownerId:req.user._id})
+    if(storeExitsAlredy){
+      return res.status(400).json({message:"Per Seller Only One Store"})
+    }
     const storeInstance = new store({
       storename,
       description,

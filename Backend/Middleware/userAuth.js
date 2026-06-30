@@ -1,7 +1,6 @@
 const user = require("../models/userSchema")
 const jwt = require("jsonwebtoken")
 const isUserAuth = async (req,res,next)=>{
-    console.log(req.cookies.token);
     const token = req.cookies.token
     if(!token){
         res.status(400).json({message:"Token is not present"})

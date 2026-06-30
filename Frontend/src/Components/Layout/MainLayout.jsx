@@ -1,8 +1,8 @@
 import React from 'react'
-import Navbar from './Navbar'
+import Navbar from '../Navbar'
 import { Outlet } from 'react-router-dom'
 import { useEffect } from 'react'
-import { addUser } from '../Store/userSlice'
+import { addUser } from '../../Store/userSlice'
 import { useDispatch } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";

@@ -50,15 +50,17 @@ orderRouter.get("/order",isUserAuth,async(req,res)=>{
     else{
       const FindOrderForSeller = await store.find({ownerId:req.user._id})
       const findOrder = await order.find({}).populate({
-      path: "items.ItemsId",
+      path: "_id items.ItemsId",
       select: "storeId",
       match: {
         storeId: FindOrderForSeller[0]._id,
       },
-      });
+      }).populate("userId","name")
       const orderForSeller = findOrder.map((e)=>{
+        const orderId = e._id
+        const name = e.userId.name
         const order = e.items.filter((elm)=>elm.ItemsId)
-        return order
+        return {name,orderId,order}
       })
       if(!findOrder){
         return res.status(400).json({message:"No Order Found"})
@@ -97,7 +99,7 @@ orderRouter.patch("/order", isUserAuth, isSeller, async (req, res) => {
     const data = await isOrder.save()
     return res
       .status(200)
-      .json({ message: "Order is Founded", data });
+      .json({ message: "Status is Updated Successfully", data });
   } catch (err) {
     console.log(err);
   }

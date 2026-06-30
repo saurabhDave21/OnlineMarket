@@ -50,7 +50,6 @@ cartRouter.post(
         }
         itemsData.Itemsquantity = itemsData.Itemsquantity + 1;
         itemsData.price = itemsExists.price * itemsData.Itemsquantity;
-        console.log(itemsData);
         data = await isItemsCountIncrease.save();
         return res
           .status(200)

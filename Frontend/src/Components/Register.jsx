@@ -34,7 +34,10 @@ const Register = () => {
             if (!res.ok) {
                 throw new Error(resData.message); // or resData.error
             }
-
+            setName("")
+            setEmail("")
+            setPassword("")
+            setRole("")
             console.log(resData);
         }
         catch (err) {
