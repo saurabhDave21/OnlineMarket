@@ -35,14 +35,6 @@ storeRouter.post("/create-store",isUserAuth,isSeller, async (req, res) => {
   }
 });
 
-storeRouter.post("/delete-store/:storeId",isSeller,async(req,res)=>{
-  try{
-
-  }
-  catch(err){
-
-  }
-})
 
 
 
